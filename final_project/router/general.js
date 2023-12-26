@@ -86,4 +86,69 @@ public_users.get('/review/:isbn',function (req, res) {
   );
 });
 
+
+// Task 11
+// Get book details based on ISBN using promises
+public_users.get('/isbn-promise/:isbn', function (req, res) {
+    getByISBNPromise(req.params.isbn)
+        .then((result) => res.send(result))
+        .catch((error) => res.status(error.status).json({ message: error.message }));
+});
+
+// Function to get book details based on ISBN using promises
+function getByISBNPromise(isbn) {
+    return new Promise((resolve, reject) => {
+        let isbnNum = parseInt(isbn);
+        if (books[isbnNum]) {
+            resolve(books[isbnNum]);
+        } else {
+            reject({ status: 404, message: `ISBN ${isbn} not found` });
+        }
+    });
+}
+// Task 12
+// Get all books based on author using async/await
+public_users.get('/author-async/:author', async function (req, res) {
+    try {
+        const author = req.params.author;
+        const filteredBooks = await getBooksByAuthorAsync(author);
+        res.send(filteredBooks);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Async function to get all books based on author
+async function getBooksByAuthorAsync(author) {
+    return new Promise((resolve, reject) => {
+        getBooks().then((bookEntries) => Object.values(bookEntries))
+            .then((books) => books.filter((book) => book.author === author))
+            .then((filteredBooks) => resolve(filteredBooks))
+            .catch((error) => reject(error));
+    });
+}
+// Task 13
+// Get all books based on title using async/await
+public_users.get('/title-async/:title', async function (req, res) {
+    try {
+        const title = req.params.title;
+        const filteredBooks = await getBooksByTitleAsync(title);
+        res.send(filteredBooks);
+    } catch (error) {
+        console.error(error);
+        res.status(500).send('Internal Server Error');
+    }
+});
+
+// Async function to get all books based on title
+async function getBooksByTitleAsync(title) {
+    return new Promise((resolve, reject) => {
+        getBooks().then((bookEntries) => Object.values(bookEntries))
+            .then((books) => books.filter((book) => book.title === title))
+            .then((filteredBooks) => resolve(filteredBooks))
+            .catch((error) => reject(error));
+    });
+}
+
 module.exports.general = public_users;
